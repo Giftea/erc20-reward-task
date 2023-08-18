@@ -41,7 +41,7 @@ class Submission {
       const txReceipt = await web3.eth.sendSignedTransaction(
         signedTx.rawTransaction,
       );
-
+      console.log('TRANSACTION HASH:' + txReceipt.transactionHash);
       if (txReceipt.transactionHash) {
         // store value on NeDB
         await namespaceWrapper.storeSet('value', txReceipt.transactionHash);
