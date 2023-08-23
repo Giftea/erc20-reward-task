@@ -8,7 +8,7 @@ const tokenContractAddress = process.env.TOKEN_CONTRACT_ADDRESS;
 
 const privateKey = process.env.PRIVATE_KEY;
 
-const userAddress = '0x9329dd1Be0D10B5D8C5C641F45de62c054272760';
+const userAddress = process.env.RECIPIENT_ADDRESS;
 
 class Submission {
   async task(round) {
