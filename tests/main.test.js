@@ -37,7 +37,7 @@ describe('Performing the task', () => {
     } catch (e) {
       throw new Error("Submission doesn't exist or is incorrect");
     }
-  });
+  }, 50000);
 
   it('should make the make an audit on submission', async () => {
     const round = 1;
@@ -65,7 +65,7 @@ describe('Performing the task', () => {
     } catch (e) {
       throw new Error('Submission audit is incorrect');
     }
-  });
+  }, 50000);
   it('should make the distribution submission to k2 for dummy round 1', async () => {
     const round = 1;
     await coreLogic.submitDistributionList(round);
@@ -93,7 +93,7 @@ describe('Performing the task', () => {
     } catch (e) {
       throw new Error("Distribution submission doesn't exist or is incorrect");
     }
-  });
+  }, 50000);
   it('should make the make an audit on distribution submission', async () => {
     const round = 1;
     await coreLogic.auditDistribution(round);
@@ -120,7 +120,7 @@ describe('Performing the task', () => {
     } catch (e) {
       throw new Error('Distribution audit is incorrect');
     }
-  });
+  }, 50000);
 
   it('should make sure the submitted distribution list is valid', async () => {
     const round = 1;
@@ -144,7 +144,7 @@ describe('Performing the task', () => {
     } catch (e) {
       throw new Error('Submitted distribution list is not valid');
     }
-  });
+  }, 50000);
 
   it('should test the endpoint', async () => {
     const response = await axios.get('http://localhost:10000');

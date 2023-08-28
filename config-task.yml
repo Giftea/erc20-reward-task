@@ -38,8 +38,8 @@ space: 1
 
 requirementsTags:
   - type: TASK_VARIABLE
-    value: "WEB3.STORAGE"
-    description: "used to store the data"
+    value: "RECIPIENT_ADDRESS"
+    description: "Enter Ethereum wallet address for distribution of tokens"
   - type: CPU
     value: "4-core"
   - type: RAM

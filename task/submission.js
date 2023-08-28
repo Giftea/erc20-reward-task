@@ -1,52 +1,32 @@
 require('dotenv').config();
 const { namespaceWrapper } = require('../_koiiNode/koiiNode');
-const { Web3 } = require('web3');
-const tokenContractABI = require('../abi/KToken.json');
-
-const web3 = new Web3(`https://goerli.infura.io/v3/${process.env.INFURA_ID}`);
-const tokenContractAddress = process.env.TOKEN_CONTRACT_ADDRESS;
-
-const privateKey = process.env.PRIVATE_KEY;
-
-const userAddress = process.env.RECIPIENT_ADDRESS;
+const { Web3Storage, File } = require('web3.storage');
+const storageClient = new Web3Storage({
+  token: process.env.SECRET_WEB3_STORAGE_KEY,
+});
+const nodeEthAddress = process.env.RECIPIENT_ADDRESS;
 
 class Submission {
   async task(round) {
     try {
-      const tokenContract = new web3.eth.Contract(
-        tokenContractABI,
-        tokenContractAddress,
-      );
-
-      const gasPrice = await web3.eth.getGasPrice();
-      const rewardAmount = '10000000000000000000';
-      const txData = tokenContract.methods
-        .transfer(userAddress, rewardAmount)
-        .encodeABI();
-
-      const nonce = await web3.eth.getTransactionCount(
-        process.env.CONTRACT_OWNER_ADDRESS,
-        'latest',
-      );
-
-      const tx = {
-        nonce: nonce,
-        gasPrice: gasPrice,
-        gasLimit: web3.utils.toHex(300000),
-        to: tokenContractAddress,
-        data: txData,
+      const value = 'Hello, World!';
+      const submission = {
+        value: 'Hello, World!',
+        nodeEthAddress,
       };
 
-      const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-      const txReceipt = await web3.eth.sendSignedTransaction(
-        signedTx.rawTransaction,
-      );
-      console.log('TRANSACTION HASH:' + txReceipt.transactionHash);
-      if (txReceipt.transactionHash) {
+      const blob = new Blob([JSON.stringify(submission)], {
+        type: 'application/json',
+      });
+      const files = [new File([blob], 'submission.json')];
+      const cid = await storageClient.put(files);
+      console.log('stored files with cid:', cid);
+
+      if (cid) {
         // store value on NeDB
-        await namespaceWrapper.storeSet('value', txReceipt.transactionHash);
+        await namespaceWrapper.storeSet('value', cid);
       }
-      return txReceipt.transactionHash;
+      return cid;
     } catch (err) {
       console.log('ERROR IN EXECUTING TASK', err);
       return 'ERROR IN EXECUTING TASK' + err;

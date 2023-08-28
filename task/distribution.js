@@ -1,4 +1,60 @@
+require('dotenv').config();
 const { namespaceWrapper } = require('../_koiiNode/koiiNode');
+const { Web3 } = require('web3');
+const tokenContractABI = require('../abi/KToken.json');
+const { retrieveFromCid } = require('../helper');
+const web3 = new Web3(`https://goerli.infura.io/v3/${process.env.INFURA_ID}`);
+const tokenContractAddress = process.env.TOKEN_CONTRACT_ADDRESS;
+const privateKey = process.env.PRIVATE_KEY;
+
+async function distributeKToken(distributionCandidates, submissions) {
+  for (const candidate of distributionCandidates) {
+    if (candidate in submissions) {
+      const submission_value = submissions[candidate].submission_value;
+      const output = await retrieveFromCid(submission_value);
+      const nodeEthAddress = output.nodeEthAddress;
+      console.log(nodeEthAddress)
+      try {
+        const tokenContract = new web3.eth.Contract(
+          tokenContractABI,
+          tokenContractAddress,
+        );
+
+        const gasPrice = await web3.eth.getGasPrice();
+        const rewardAmount = '10000000000000000000';
+        const txData = tokenContract.methods
+          .transfer(nodeEthAddress, rewardAmount)
+          .encodeABI();
+
+        const nonce = await web3.eth.getTransactionCount(
+          process.env.CONTRACT_OWNER_ADDRESS,
+          'latest',
+        );
+
+        const tx = {
+          nonce: nonce,
+          gasPrice: gasPrice,
+          gasLimit: web3.utils.toHex(300000),
+          to: tokenContractAddress,
+          data: txData,
+        };
+
+        const signedTx = await web3.eth.accounts.signTransaction(
+          tx,
+          privateKey,
+        );
+        const txReceipt = await web3.eth.sendSignedTransaction(
+          signedTx.rawTransaction,
+        );
+        console.log('TRANSACTION HASH:' + txReceipt.transactionHash);
+
+        return txReceipt.transactionHash;
+      } catch (err) {
+        console.log('ERROR', err);
+      }
+    }
+  }
+}
 
 class Distribution {
   async submitDistributionList(round) {
@@ -117,7 +173,8 @@ class Distribution {
       for (let i = 0; i < distributionCandidates.length; i++) {
         distributionList[distributionCandidates[i]] = reward;
       }
-      console.log('Distribution List', distributionList);
+      // Distribute ERC20 token to nodes on the distributionList
+      await distributeKToken(distributionCandidates, submissions)
       return distributionList;
     } catch (err) {
       console.log('ERROR IN GENERATING DISTRIBUTION LIST', err);
