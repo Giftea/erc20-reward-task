@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require('axios');
 const { Web3Storage } = require('web3.storage');
 const storageClient = new Web3Storage({

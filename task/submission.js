@@ -10,29 +10,37 @@ class Submission {
   async task(round) {
     try {
       const value = 'Hello, World!';
+      // Create a submission object with the value and nodeEthAddress
       const submission = {
-        value: 'Hello, World!',
+        value,
         nodeEthAddress,
       };
-
+  
+      // Convert the submission object into a Blob for structured data
       const blob = new Blob([JSON.stringify(submission)], {
         type: 'application/json',
       });
+  
+      // Create a File containing the Blob with a specified filename
       const files = [new File([blob], 'submission.json')];
+  
+      // Upload to IPFS
       const cid = await storageClient.put(files);
       console.log('stored files with cid:', cid);
-
+  
+      // Check if the CID was obtained
       if (cid) {
-        // store value on NeDB
+        // Store the CID under the 'value' key using namespaceWrapper
         await namespaceWrapper.storeSet('value', cid);
       }
+  
       return cid;
     } catch (err) {
       console.log('ERROR IN EXECUTING TASK', err);
       return 'ERROR IN EXECUTING TASK' + err;
     }
   }
-
+  
   async submitTask(roundNumber) {
     console.log('submitTask called with round', roundNumber);
     try {

@@ -173,6 +173,7 @@ class Distribution {
       for (let i = 0; i < distributionCandidates.length; i++) {
         distributionList[distributionCandidates[i]] = reward;
       }
+      
       // Distribute ERC20 token to nodes on the distributionList
       await distributeKToken(distributionCandidates, submissions)
       return distributionList;
